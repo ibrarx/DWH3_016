@@ -12,7 +12,21 @@
 
 \title{BI2025 Experiment Report - Group 16}
 %% ---Authors: Dynamically added ---
-\textit{No documentation found in Knowledge Graph.}
+
+          \author{Muhammad Ibrar}
+          \authornote{Student A, Matr.Nr.: 12350094}
+          \affiliation{
+            \institution{TU Wien}
+            \country{Austria}
+          }
+          
+          \author{Ahmad Ibrahim}
+          \authornote{Student B, Matr.Nr.: 11826186}
+          \affiliation{
+            \institution{TU Wien}
+            \country{Austria}
+          }
+          
 
 \begin{abstract}
   This report documents the machine learning experiment for Group 16, following the CRISP-DM process model and generated automatically from the provenance knowledge graph.
@@ -27,26 +41,46 @@
 \section{Business Understanding}
 
 \subsection{Data Source and Scenario}
+Data Source:
+The dataset is the Kaggle “Mobile Price Classification” dataset containing 2,000 mobile phones. Each phone is described by 20 technical features (battery power, RAM, internal memory, camera specs, connectivity options, screen dimensions, etc.) and one target variable price\_range with four classes (0 = low, 3 = very high).
 
+Scenario:
+A new mobile company wants to price upcoming phone models competitively against major brands. Instead of relying only on expert judgment, the company wants to analyze historical specifications of phones and their corresponding price ranges to support pricing decisions.
 
 \subsection{Business Objectives}
-\textit{No documentation found in Knowledge Graph.}
+1. Support pricing decisions by predicting the most suitable price range for new phone models.
+2. Reduce manual effort and time required to estimate price categories.
+3. Improve product positioning in budget, mid-range, high-end, and flagship segments.
+4. Increase transparency on how technical features influence pricing decisions.
 
 \subsection{Business Success Criteria}
-\textit{No documentation found in Knowledge Graph.}
+1. The ML system is regularly used by product and pricing teams.
+2. At least a 30\% reduction in time needed for initial price-range estimation.
+3. Most new models (>80\%) remain in the initially selected price band after launch.
+4. Pricing decisions become more consistent and data-driven across phone segments.
 
 \subsection{Data Mining Goals}
-\textit{No documentation found in Knowledge Graph.}
+1. Build a multi-class classifier predicting the price\_range (0-3) from 20 phone features.
+2. Achieve robust accuracy on unseen data and generalize well to new configurations.
+3. Identify important features (e.g., RAM, pixel resolution) influencing the price range.
+4. Provide probability outputs to support uncertainty-aware pricing decisions.
 
 \subsection{Data Mining Success Criteria}
-\textit{No documentation found in Knowledge Graph.}
+1. Achieve ≥90\% accuracy on the validation/test set.
+2. Macro F1-score ≥0.88 with no class having recall <0.80.
+3. Model performance remains stable across different random splits.
+4. Probabilities are reasonably calibrated for business decision use.
 
 \subsection{AI Risk Aspects}
-\textit{No documentation found in Knowledge Graph.}
+1. Misclassification may lead to wrong pricing decisions, affecting revenue or sales.
+2. The dataset may not reflect future devices; model drift is a risk.
+3. Over-reliance on the model could cause poor decisions without expert review.
+4. Although no personal data is used, systematic bias across device categories is possible.
+5. Pricing logic leakage is a business security risk if the model is exposed externally.
 
 %% --- 2. Data Understanding ---
 \section{Data Understanding}
-\textbf{Dataset Description:} \textit{No documentation found in Knowledge Graph.}
+\textbf{Dataset Description:} Kaggle mobile phone specifications with price\_range labels (0–3) for 2000 phones.
 
 The following features were identified in the dataset:
 
@@ -57,7 +91,27 @@ The following features were identified in the dataset:
     \toprule
     \textbf{Feature Name} & \textbf{Data Type} & \textbf{Description} \\
     \midrule
-    \multicolumn{3}{l}{\textit{No feature metadata found in KG.}} \\
+    battery\_power & integer> & Total energy the battery can store in one charge (mAh). \\
+    blue & integer> & Binary indicator (0/1) whether the phone has Bluetooth support. \\
+    clock\_speed & double> & Maximum clock speed of the microprocessor (GHz). \\
+    dual\_sim & integer> & Binary indicator (0/1) whether the phone supports dual SIM. \\
+    fc & integer> & Front camera resolution in megapixels. \\
+    four\_g & integer> & Binary indicator (0/1) whether the phone supports 4G. \\
+    int\_memory & integer> & Internal memory size of the phone (in GB). \\
+    m\_dep & double> & Mobile depth (thickness) in cm. \\
+    mobile\_wt & integer> & Weight of the mobile phone in grams. \\
+    n\_cores & integer> & Number of cores of the processor (1–8). \\
+    pc & integer> & Primary camera resolution in megapixels. \\
+    price\_range & integer> & Target: price category of the mobile (0=low, 1=medium, 2=high, 3=very high). \\
+    px\_height & integer> & Pixel resolution height of the mobile display. \\
+    px\_width & integer> & Pixel resolution width of the mobile display. \\
+    ram & integer> & Random Access Memory size in MB. \\
+    sc\_h & integer> & Screen height of the mobile in cm. \\
+    sc\_w & integer> & Screen width of the mobile in cm. \\
+    talk\_time & integer> & Longest time that a single battery charge will last during continuous calls (hours). \\
+    three\_g & integer> & Binary indicator (0/1) whether the phone supports 3G. \\
+    touch\_screen & integer> & Binary indicator (0/1) whether the phone has a touch screen. \\
+    wifi & integer> & Binary indicator (0/1) whether the phone supports WiFi. \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -66,19 +120,558 @@ The following features were identified in the dataset:
 \section{Data Preparation}
 
 \subsection{Preprocessing Actions Applied}
-\textit{No documentation found in Knowledge Graph.}
+\{
+  "duplicate\_count": 0,
+  "missing\_values": \{
+    "battery\_power": 0,
+    "blue": 0,
+    "clock\_speed": 0,
+    "dual\_sim": 0,
+    "fc": 0,
+    "four\_g": 0,
+    "int\_memory": 0,
+    "m\_dep": 0,
+    "mobile\_wt": 0,
+    "n\_cores": 0,
+    "pc": 0,
+    "px\_height": 0,
+    "px\_width": 0,
+    "ram": 0,
+    "sc\_h": 0,
+    "sc\_w": 0,
+    "talk\_time": 0,
+    "three\_g": 0,
+    "touch\_screen": 0,
+    "wifi": 0,
+    "price\_range": 0
+  \},
+  "noise\_sc\_w\_count": 390,
+  "noise\_px\_height\_count": 9,
+  "noise\_sc\_w\_indices": [
+    5,
+    8,
+    12,
+    13,
+    19,
+    21,
+    24,
+    26,
+    28,
+    31,
+    33,
+    34,
+    38,
+    42,
+    50,
+    54,
+    62,
+    68,
+    69,
+    73,
+    86,
+    89,
+    107,
+    114,
+    115,
+    119,
+    128,
+    131,
+    139,
+    140,
+    141,
+    144,
+    147,
+    150,
+    153,
+    157,
+    158,
+    159,
+    162,
+    172,
+    182,
+    183,
+    186,
+    207,
+    210,
+    217,
+    237,
+    238,
+    240,
+    242,
+    243,
+    249,
+    250,
+    257,
+    259,
+    261,
+    263,
+    264,
+    269,
+    285,
+    291,
+    295,
+    296,
+    301,
+    306,
+    311,
+    312,
+    315,
+    316,
+    320,
+    326,
+    328,
+    331,
+    332,
+    333,
+    334,
+    336,
+    342,
+    343,
+    346,
+    347,
+    354,
+    358,
+    361,
+    364,
+    370,
+    372,
+    374,
+    380,
+    389,
+    390,
+    394,
+    397,
+    398,
+    401,
+    406,
+    415,
+    422,
+    427,
+    429,
+    435,
+    439,
+    440,
+    441,
+    449,
+    459,
+    468,
+    473,
+    476,
+    477,
+    487,
+    489,
+    490,
+    491,
+    495,
+    498,
+    500,
+    514,
+    516,
+    521,
+    537,
+    538,
+    541,
+    545,
+    546,
+    551,
+    572,
+    591,
+    594,
+    603,
+    618,
+    623,
+    626,
+    629,
+    634,
+    637,
+    640,
+    641,
+    643,
+    645,
+    646,
+    655,
+    659,
+    674,
+    675,
+    677,
+    679,
+    687,
+    691,
+    697,
+    700,
+    704,
+    718,
+    725,
+    728,
+    734,
+    735,
+    738,
+    741,
+    743,
+    744,
+    745,
+    769,
+    776,
+    778,
+    780,
+    783,
+    786,
+    797,
+    801,
+    805,
+    806,
+    808,
+    824,
+    828,
+    831,
+    832,
+    840,
+    844,
+    854,
+    855,
+    857,
+    862,
+    870,
+    874,
+    875,
+    885,
+    893,
+    894,
+    899,
+    900,
+    910,
+    945,
+    959,
+    962,
+    970,
+    971,
+    977,
+    992,
+    999,
+    1003,
+    1009,
+    1014,
+    1016,
+    1018,
+    1025,
+    1027,
+    1035,
+    1036,
+    1037,
+    1042,
+    1044,
+    1045,
+    1056,
+    1068,
+    1070,
+    1071,
+    1075,
+    1076,
+    1083,
+    1099,
+    1102,
+    1103,
+    1110,
+    1111,
+    1135,
+    1137,
+    1144,
+    1145,
+    1146,
+    1149,
+    1153,
+    1155,
+    1159,
+    1160,
+    1167,
+    1168,
+    1178,
+    1179,
+    1194,
+    1204,
+    1208,
+    1214,
+    1222,
+    1226,
+    1227,
+    1229,
+    1232,
+    1239,
+    1245,
+    1253,
+    1256,
+    1257,
+    1268,
+    1270,
+    1273,
+    1277,
+    1288,
+    1295,
+    1297,
+    1303,
+    1305,
+    1308,
+    1312,
+    1314,
+    1319,
+    1321,
+    1328,
+    1331,
+    1333,
+    1342,
+    1344,
+    1345,
+    1346,
+    1356,
+    1358,
+    1364,
+    1382,
+    1384,
+    1424,
+    1426,
+    1428,
+    1433,
+    1448,
+    1458,
+    1460,
+    1467,
+    1470,
+    1474,
+    1475,
+    1479,
+    1481,
+    1488,
+    1490,
+    1492,
+    1495,
+    1497,
+    1504,
+    1532,
+    1534,
+    1537,
+    1549,
+    1551,
+    1557,
+    1565,
+    1566,
+    1572,
+    1577,
+    1581,
+    1584,
+    1587,
+    1590,
+    1593,
+    1595,
+    1598,
+    1601,
+    1608,
+    1615,
+    1624,
+    1625,
+    1630,
+    1642,
+    1650,
+    1652,
+    1655,
+    1656,
+    1678,
+    1679,
+    1690,
+    1700,
+    1702,
+    1704,
+    1706,
+    1707,
+    1709,
+    1716,
+    1717,
+    1730,
+    1732,
+    1733,
+    1740,
+    1742,
+    1759,
+    1765,
+    1766,
+    1770,
+    1781,
+    1785,
+    1790,
+    1794,
+    1796,
+    1804,
+    1809,
+    1813,
+    1821,
+    1826,
+    1828,
+    1829,
+    1831,
+    1840,
+    1841,
+    1842,
+    1844,
+    1846,
+    1855,
+    1856,
+    1859,
+    1863,
+    1865,
+    1872,
+    1875,
+    1877,
+    1887,
+    1893,
+    1899,
+    1908,
+    1909,
+    1913,
+    1918,
+    1920,
+    1922,
+    1943,
+    1946,
+    1953,
+    1954,
+    1958,
+    1965,
+    1981,
+    1982,
+    1997
+  ],
+  "noise\_px\_height\_indices": [
+    73,
+    801,
+    1314,
+    1481,
+    1536,
+    1878,
+    1933,
+    1963,
+    1991
+  ]
+\}
 
 \subsection{Steps Considered but Not Applied}
-\textit{No documentation found in Knowledge Graph.}
+Preprocessing steps that were considered during the Data Preparation phase but not applied:
+
+• Outlier removal:
+  Outliers in the front-camera field (fc) were identified earlier. Since their domain
+  validity is uncertain and they may represent legitimate device variations, they were
+  not removed at this stage. Their impact will be assessed during modeling.
+
+• Noise cleaning:
+  Values identified as noise-like (sc\_w < 2, px\_height < 5) were retained for now.
+  These may correspond to early or atypical devices. Noise handling will be reconsidered
+  if models show sensitivity to these records.
+
+• Feature removal based on low correlation:
+  Pearson correlation was already evaluated in the Data Understanding phase. Although
+  some features showed weak linear correlation with the target, correlation alone is not
+  a reliable criterion for removal, especially when non-linear relationships may exist.
+  Therefore, no features were dropped solely based on correlation, and model-based
+  feature importance techniques will be used instead.
+
+• Scaling and normalization:
+  Scaling was considered but postponed. Only algorithms sensitive to feature magnitudes
+  (e.g., SVM) will require scaling, and it will be applied at the model-specific stage (if required).
+
+• Additional encoding:
+  Binary technical attributes (blue, dual\_sim, three\_g, four\_g, touch\_screen, wifi) 
+  are already coded as 0/1. We considered one-hot encoding, but since these are 
+  simple binary flags, no further encoding was applied.
 
 \subsection{Derived Attributes (Options)}
-\textit{No documentation found in Knowledge Graph.}
+Data Preparation 3c - Options and potential for derived attributes:
+
+Several derived attributes could potentially improve model performance or interpretability:
+
+• Screen-related features:
+  - pixel\_area = px\_height * px\_width (proxy for screen resolution / sharpness)
+  - screen\_area = sc\_h * sc\_w (approximate physical display size)
+  - pixel\_density\_ratio = pixel\_area / screen\_area (if sc\_w and sc\_h are reliable)
+
+• Performance / capacity ratios:
+  - ram\_per\_internal\_memory = ram / int\_memory (relative memory configuration)
+  - battery\_per\_weight = battery\_power / mobile\_wt (capacity relative to device weight)
+  - camera\_total\_mp = fc + pc (overall camera capability)
+
+• Connectivity and feature counts:
+  - connectivity\_score = blue + three\_g + four\_g + wifi (simple feature count)
+  - feature\_richness = connectivity\_score + touch\_screen + dual\_sim
+
+These attributes could better capture interactions between existing variables and might help
+models distinguish between devices within the same price\_range. For now, they are documented
+as options; actual creation will be decided based on model needs and complexity trade-offs.
 
 \subsection{External Data \& Additional Attributes}
-\textit{No documentation found in Knowledge Graph.}
+Data Preparation 3d - Options for additional external data sources and attributes:
+
+The current dataset contains only technical specifications and an abstract price\_range label.
+Several external data sources could improve the alignment with the business goal of realistic
+pricing and market positioning:
+
+• Real retail prices:
+  Link each device (or representative configurations) to historical market prices from
+  online shops or price comparison portals. This would allow:
+  - Training a regression model for actual price
+  - Validating whether the price\_range labels reflect realistic price bands
+
+• Brand and model metadata:
+  Add manufacturer brand, model family, and release year from public product catalogs.
+  These attributes could capture brand effects and generation effects (newer vs. older
+  technology) that strongly influence perceived value.
+
+• Market segment and region:
+  If available, add information about target market segment (e.g., budget, mid-range,
+  flagship) or region (e.g., EU, US, Asia). This would allow more fine-grained analysis
+  of price expectations across markets.
+
+• User / expert ratings:
+  External quality ratings (camera score, battery score, display rating) aggregated from
+  review sites could help connect technical specs to perceived quality and justify
+  differences within the same price\_range.
+
+These sources are hypothetical and not integrated in this project, but documenting them
+clarifies how the dataset could be extended to support richer pricing and marketing analysis.
 
 \subsection{Summary of Preprocessing Decisions}
-\textit{No documentation found in Knowledge Graph.}
+Summary of Data Preparation Decisions:
+
+Based on the Data Understanding phase, additional preprocessing steps such as global scaling,
+binning, categorical encoding, and outlier removal were considered but intentionally not applied.
+
+• Scaling:
+  Scaling is not applied globally because only certain models (e.g., SVM) require it. Scaling
+  will be performed inside model-specific pipelines rather than altering the original dataset.
+
+• Binning:
+  No binning was applied because numerical attributes already show meaningful continuous ranges
+  and the target price\_range classes are balanced. There is no business or modeling justification
+  for discretization.
+
+• Outlier Removal:
+  Although outliers were detected in the fc feature, they were retained. Their domain validity is
+  uncertain, and premature removal could discard meaningful variation. These will be revisited
+  only if models show sensitivity.
+
+• Noise Values:
+  Noise-like values in sc\_w and px\_height were identified but not cleaned, as these may represent
+  early-generation devices. Models planned for later (e.g., SVM, Decision Tree, RF) are robust to
+  such noise.
+
+• Encoding:
+  No encoding was necessary because all categorical features are already numeric (0/1 or ordinal).
+
+• Feature Removal:
+  Although Pearson correlation was analyzed in the Data Understanding phase, features were not
+  removed solely based on low linear correlation. Non-linear relationships will be captured by
+  model-based feature importance.
+
+Conclusion:
+Only essential checks (duplicates, missing values, noise tagging) were performed. All other
+transformations were deferred to the modeling phase or deemed unnecessary given the dataset’s
+clean and structured nature.
 
 %% --- 4. Modeling ---
 \section{Modeling}
@@ -93,7 +686,8 @@ The model was trained using the following hyperparameter settings (as recorded i
     \toprule
     \textbf{Parameter} & \textbf{Description} & \textbf{Value} \\
     \midrule
-    \multicolumn{3}{l}{\textit{No hyperparameter settings found in KG.}} \\
+    C (Regularization strength) & Penalty parameter: larger C fits training data more closely; smaller C increases regularization / margin. & 100.0 \\
+    kernel & Kernel function type (linear, rbf, poly, sigmoid) controlling decision boundary form and compute cost. & linear \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -101,19 +695,19 @@ The model was trained using the following hyperparameter settings (as recorded i
 \subsection{Training Run}
 A training run was executed with the following characteristics:
 \begin{itemize}
-    \item \textbf{Algorithm:} \textit{No documentation found in Knowledge Graph.}
-    \item \textbf{Start Time:} \textit{No documentation found in Knowledge Graph.}
-    \item \textbf{End Time:} \textit{No documentation found in Knowledge Graph.}
-    \item \textbf{Result:} \textit{No documentation found in Knowledge Graph.} = \textit{No documentation found in Knowledge Graph.}
+    \item \textbf{Algorithm:} Support Vector Machine (SVM) Classification Algorithm
+    \item \textbf{Start Time:} 2025-12-25 19:33:26
+    \item \textbf{End Time:} 2025-12-25 19:33:40
+    \item \textbf{Result:} Accuracy = 0.9517
 \end{itemize}
 
 
 \subsection{Tuning Curve}
-The tuning curve figure was saved at: \texttt{\textbackslash\{\}textit\{No documentation found in Knowledge Graph.\}}
+The tuning curve figure was saved at: \texttt{data/report/figures/svm\_tuning\_C\_vs\_cv\_accuracy.png}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\linewidth]{\textbackslash\{\}textit\{No documentation found in Knowledge Graph.\}}
+\includegraphics[width=0.95\linewidth]{data/report/figures/svm\_tuning\_C\_vs\_cv\_accuracy.png}
 \caption{SVM hyperparameter tuning curve (C vs mean CV accuracy).}
 \end{figure}
 
@@ -122,22 +716,108 @@ The tuning curve figure was saved at: \texttt{\textbackslash\{\}textit\{No docum
 \section{Evaluation}
 
 \subsection{Final Model Performance on Test Set (5a, 5c)}
-\textit{No documentation found in Knowledge Graph.}
+Evaluation phase (Section 5) summary:
+
+5a) Final model applied to test set and evaluated.
+- Accuracy=0.9825, Macro-F1=0.9825, Micro-F1=0.9825
+
+5b(i) External benchmark identified (Kaggle notebook) and documented as entities:
+- https://www.kaggle.com/code/zorornoa/mobile-price-prediction
+
+5b(ii) Trivial baselines computed:
+- Majority baseline acc=0.2500
+- Random baseline (seed=0) acc=0.2525
+
+5c) Comparison vs benchmark and baselines:
+- See dedicated comparison entity with multi-metric discussion + per-class recall and confusion matrix reference.
+
+5d) Compared against BU success criteria (referencing :bu\_data\_mining\_success\_criteria):
+- Meets Accuracy≥0.90? True
+- Meets Macro-F1≥0.88? True
+- Meets per-class recall ≥0.80 for all classes? True
+
+5e) Bias / subgroup audit using protected attribute 'four\_g':
+- See dedicated bias evaluation entity containing subgroup metrics + rationale.
+
+Artifacts:
+- Confusion matrix figure: dataeportiguresinal\_model\_confusion\_matrix\_test.png
+- Bias subgroup accuracy figure: dataeportiguresias\_subgroup\_accuracy\_four\_g.png
 
 \subsection{State-of-the-Art / External Benchmark (5b-i)}
-\textit{No documentation found in Knowledge Graph.}
+External benchmark (Kaggle notebook):
+Source: https://www.kaggle.com/code/zorornoa/mobile-price-prediction
+
+Reported benchmarks:
+Random Forest        | Test Accuracy: 0.9150 | CV Accuracy: 0.8787 (±0.0118)
+XGBoost              | Test Accuracy: 0.9325 | CV Accuracy: 0.8950 (±0.0064)
+Gradient Boosting    | Test Accuracy: 0.9125 | CV Accuracy: 0.8919 (±0.0187)
+SVM                  | Test Accuracy: 0.8625 | CV Accuracy: 0.8412 (±0.0170)
+Logistic Regression  | Test Accuracy: 0.9575 | CV Accuracy: 0.9481 (±0.0121)
+K-Nearest Neighbors  | Test Accuracy: 0.4700 | CV Accuracy: 0.4700 (±0.0177)
+Decision Tree        | Test Accuracy: 0.8675 | CV Accuracy: 0.8206 (±0.0249)
+Naive Bayes          | Test Accuracy: 0.8275 | CV Accuracy: 0.7937 (±0.0240)
+
+Note:
+These values were extracted manually from the referenced notebook and documented here for benchmarking purposes.
 
 \subsection{Benchmark \& Baseline Comparison (5c)}
-\textit{No documentation found in Knowledge Graph.}
+5c) Comparison against benchmark and trivial baselines using multiple metrics.
+
+Our final model:
+- Test Accuracy = 0.9825
+- Test Macro Precision = 0.9825
+- Test Macro Recall = 0.9825
+- Test Macro F1 = 0.9825
+- Test Micro F1 = 0.9825
+- Per-class recall: \{
+  "0": 1.0,
+  "1": 0.98,
+  "2": 0.97,
+  "3": 0.98
+\}
+
+Trivial baselines (5b-ii):
+- Majority baseline: acc=0.2500, macro\_f1=0.1000
+- Uniform random baseline (seed=0): acc=0.2525, macro\_f1=0.2509
+
+External benchmark (5b-i, Kaggle notebook):
+- Reported SVM Test Accuracy = 0.8625
+- Best reported Test Accuracy in that notebook = 0.9575
+
+Interpretation:
+- Being substantially above the random and majority baselines indicates the model learns meaningful structure.
+- Differences vs Kaggle benchmarks can arise from: split strategy, preprocessing, scaling, tuned hyperparameters,
+  random seeds, and evaluation protocol. We document these for reproducibility.
 
 \subsection{Comparison to Business Understanding Success Criteria (5d)}
-\textit{No documentation found in Knowledge Graph.}
+5d) Comparison to Business Understanding success criteria (referencing :bu\_data\_mining\_success\_criteria)
+
+BU Data Mining Success Criteria:
+1. Achieve ≥90\% accuracy on the validation/test set.
+2. Macro F1-score ≥0.88 with no class having recall <0.80.
+3. Model performance remains stable across different random splits.
+4. Probabilities are reasonably calibrated for business decision use.
+
+Achieved on test set:
+- Accuracy = 0.9825 (meets ≥0.90? True)
+- Macro F1 = 0.9825 (meets ≥0.88? True)
+- Per-class recall (must all be ≥0.80): \{
+  "0": 1.0,
+  "1": 0.98,
+  "2": 0.97,
+  "3": 0.98
+\}
+  (meets per-class recall constraint? True)
+
+Note:
+- Stability across different random splits and probability calibration will be covered in the final submission
+  (requires repeated split experiments + calibration analysis).
 
 \subsection{Confusion Matrix}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\linewidth]{\textit{No documentation found in Knowledge Graph.}}
+\includegraphics[width=0.85\linewidth]{dataeportiguresinal\_model\_confusion\_matrix\_test.png}
 \caption{Confusion Matrix — Final model on the test set.}
 \end{figure}
 
@@ -152,16 +832,122 @@ Bias analysis results (JSON) as recorded in the KG:
 \section{Deployment}
 
 \subsection{Business Objectives Reflection and Deployment Recommendations (6a)}
-\textit{No documentation found in Knowledge Graph.}
+6a) Business Objectives \& Success Criteria reflection + deployment recommendations
+
+Links to BU:
+- Business Objectives: :bu\_business\_objectives
+- Business Success Criteria: :bu\_business\_success\_criteria
+- Data Mining Success Criteria: :bu\_data\_mining\_success\_criteria (used as technical proxy for readiness)
+
+Reflection:
+- Our final model achieves the technical performance levels reported in the Evaluation phase (Section 5),
+  which supports the Data Mining Goal of predicting price\_range (0–3) from technical specs.
+- However, Business Success Criteria are business-process outcomes (e.g., adoption by pricing teams,
+  30\% reduction in estimation time, 80\% of new models staying in the selected price band after launch).
+  These cannot be fully validated from offline test performance alone.
+
+Are Business Objectives met?
+- Objective 1 (support pricing decisions): partially met — model provides a data-driven price range suggestion.
+  Still missing: domain validation with product experts + decision workflow integration.
+- Objective 2 (reduce time/effort): likely met if integrated into tooling (but must be measured in practice).
+- Objective 3 (product positioning): partially met — output gives segment; still missing competitor context,
+  market dynamics, and launch-time constraints.
+- Objective 4 (transparency): partially met — SVM is less interpretable than linear models; additional
+  interpretability analysis is recommended (e.g., permutation importance, SHAP on a surrogate, or use a more
+  interpretable baseline in parallel).
+
+Deployment recommendation:
+- Recommended approach: HYBRID decision support (human-in-the-loop).
+  - Use model predictions as an initial suggestion, reviewed by pricing/product experts.
+  - Provide probability/confidence outputs; low-confidence cases should trigger manual review.
+- Deploy only for part of the data space initially:
+  - Focus on phone configurations similar to training distribution.
+  - Flag “out-of-distribution” specs (e.g., unusually high RAM/resolution combos) for manual review.
+
+What is missing / subsequent analysis recommendations:
+- Calibration analysis for probabilities (BU success criterion mentions calibration).
+- Stability analysis across multiple random splits / time-based validation (if applicable).
+- Feature drift monitoring plan (see 6c).
+- Interpretability \& error analysis per segment (e.g., frequent confusions between adjacent price\_range classes).
+- Business pilot study: measure time-to-estimate reduction + post-launch band stability.
 
 \subsection{Ethical Aspects and Risks (6b)}
-\textit{No documentation found in Knowledge Graph.}
+6b) Ethical aspects, impact assessment, and deployment risks
+
+Links to earlier phases:
+- AI risk aspects (BU 1f): :bu\_ai\_risk\_aspects
+- Data Understanding / Data Preparation risk statements: link to :du\_data\_quality\_assessment or :dp\_quality\_assurance if you created them.
+  (If those entities do not exist, keep this as a narrative pointer.)
+
+Key risks \& ethical considerations (context: hardware specs dataset, not people):
+- Decision risk: Misclassification can drive suboptimal pricing decisions, affecting revenue and customer perception.
+- Dataset representativeness: Training data may not reflect future devices (concept drift); risk of poor generalization.
+- Over-reliance risk: Teams may defer to model output; mitigate with human review + confidence thresholds.
+- Technical subgroup risk: Even without human sensitive attributes, subgroup performance gaps can still exist
+  (e.g., legacy vs modern phones, low vs high RAM tiers). We already initiated subgroup checks using `four\_g`.
+- Security / leakage risk: If the pricing logic implied by the model is exposed, competitors could infer pricing strategy.
+
+Mitigations:
+- Use hybrid deployment with expert override.
+- Add governance: document when and why predictions are accepted/overruled.
+- Monitor drift and set retraining triggers (6c).
+- Keep model access controlled; log requests; consider serving only aggregated outputs in tooling.
 
 \subsection{Monitoring Plan (6c)}
-\textit{No documentation found in Knowledge Graph.}
+6c) Monitoring plan + intervention triggers
+
+What to monitor (technical):
+- Data drift / feature drift:
+  - Track distribution shifts in key features (e.g., RAM, battery\_power, px\_height/px\_width, internal\_memory).
+  - Trigger: PSI > 0.2 for key features or statistically significant shift sustained over N days/weeks.
+- Prediction drift:
+  - Monitor class distribution of predicted price\_range vs historical baseline.
+  - Trigger: sustained change > X\% in predicted class frequencies.
+- Performance monitoring:
+  - When labels become available (after launch/pricing decisions), compute accuracy / macro-F1 periodically.
+  - Trigger: macro-F1 drops by >0.05 absolute from baseline or any class recall <0.80.
+- Subgroup performance (bias audit continuation):
+  - Track accuracy/macro-F1 by `four\_g` (and optionally other subgroup proxies like `ram` quantiles).
+  - Trigger: subgroup gap > 0.05–0.10 absolute in accuracy or macro-F1 sustained over time.
+- Model reliability / confidence:
+  - If probabilities are used, track calibration error (ECE/Brier).
+  - Trigger: calibration error above threshold or systematic overconfidence.
+
+Operational monitoring:
+- Adoption metrics:
+  - \% of decisions using the tool, override rate, time saved.
+  - Trigger: very high override rate suggests model mismatch or trust issue.
+
+Intervention actions:
+- Investigate drift sources; freeze model or route to manual review when triggers fire.
+- Retrain with newer data (after validation) and re-run evaluation + bias checks.
+- Update documentation and versioning for traceability and reproducibility.
 
 \subsection{Reproducibility Reflection (6d)}
-\textit{No documentation found in Knowledge Graph.}
+6d) Reproducibility reflection (based on this report + provenance)
+
+Well documented (strengths):
+- Dataset and scenario documented in BU (Section 1).
+- Train/validation/test splitting strategy is reproducible (random\_state fixed, stratification described).
+- Hyperparameter tuning documented (grid values, CV folds, random\_state).
+- Evaluation metrics and artifacts documented (classification report, confusion matrix figure paths).
+- Provenance graph captures activities, inputs/outputs, and key entities.
+
+Reproducibility risks / gaps:
+- External benchmark (Kaggle) is manually transcribed; not programmatically verified in the notebook.
+- Environment details may be incomplete:
+  - sklearn version, python version, library versions not always captured in KG.
+- If any preprocessing steps were performed outside the notebook (manual edits), that would reduce reproducibility.
+- Randomness sources:
+  - Most seeds are fixed, but parallelism (`n\_jobs=-1`) can sometimes introduce minor nondeterminism.
+- Full end-to-end rerun:
+  - Ensure all cells can be executed top-to-bottom with no hidden state.
+
+Recommendations:
+- Log package versions (pip freeze) in a KG entity or appendix.
+- Store model artifacts with version IDs and hashes.
+- Keep all figure outputs in `data/report/figures` referenced by KG.
+- For final submission, add a short “How to reproduce” checklist (data -> run notebook -> generated TTL/figures/report).
 
 \section{Conclusion}
 This report was generated automatically from the provenance knowledge graph. It summarizes the CRISP-DM phases from Business Understanding through Deployment and provides reproducible documentation of the experiment artifacts and results.
