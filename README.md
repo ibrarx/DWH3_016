@@ -130,6 +130,11 @@ Since no destructive preprocessing was applied, the modeling dataset is the same
 | **Evaluation** | Completed | Test metrics + baselines + benchmark + bias audit |
 | **Deployment** | Completed | Recommendations + monitoring + reproducibility reflection |
 
+## License
+
+- Source code is licensed under **GPL-3.0**
+- Notebooks, figures, and other artifacts are licensed under **CC-BY 4.0**
+
 
 ## Final Deliverables
 
